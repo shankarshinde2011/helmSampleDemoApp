@@ -1,0 +1,11 @@
+docker:
+  registry:
+    username: 
+    password: 
+    server: 
+    email: 
+    
+db:
+  host: 
+  username: 
+  password: 

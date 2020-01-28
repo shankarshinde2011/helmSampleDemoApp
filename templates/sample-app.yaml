@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+   name: "{{ .Release.Name }}-demo-app"
+   labels:
+      app: "{{ .Release.Name }}-demo-app"
+spec:
+   replicas: 1
+   selector:
+      matchLabels:
+         app: "{{ .Release.Name }}-demo-app"
+   template:
+      metadata:
+         labels:
+            app: "{{ .Release.Name }}-demo-app"
+      spec:
+         containers:
+         -  name: demo-app
+            image: "{{ .Values.docker.registry.server }}/sample-demo-app:0.1.0"
+            imagePullPolicy: Always
+            env:
+            -  name: DATASOURCE_SAMPLEAPP_URL
+               value: jdbc:mysql://{{ .Values.db.host }}/emp?createDatabaseIfNotExist=true
+            -  name: DATASOURCE_SAMPLEAPP_PASSWORD
+               value: {{ .Values.db.password }}
+            -  name: DATASOURCE_SAMPLEAPP_USERNAME
+               value: {{ .Values.db.username }}
+            ports:
+            -  containerPort: 8080
+         imagePullSecrets:
+         - name: platform-reg-{{ .Release.Name }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+   name: "{{ .Release.Name }}-demo-app"
+spec:
+   selector:
+      app: "{{ .Release.Name }}-demo-app"
+   ports:
+   -  protocol: TCP
+      port: 8080
+      targetPort: 8080
+   type: NodePort
